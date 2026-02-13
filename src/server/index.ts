@@ -1,19 +1,24 @@
 import { Server } from "socket.io";
+import { ClientToServerEvents, ServerToClientEvents } from "../types";
+import gameHandler from "./handlers/game";
+import playersHandler from "./handlers/players";
+import messageHandler from "./handlers/message";
 
-const io = new Server(3000, {
+
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
     path: '/',
     cors: {
     origin: "*",
   },
 });
 
+
 io.on("connection", (socket) => {
   console.log("a user connected:", socket.id);
-
-  socket.on("message", (msg) => {
-    console.log("message received:", msg);
-    io.emit("message", msg); // Broadcast the message to all connected clients
-  });
+  
+  gameHandler(socket, io);
+  playersHandler(socket);
+  messageHandler(socket);
 
   socket.on("disconnect", () => {
     console.log("user disconnected:", socket.id);

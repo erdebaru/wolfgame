@@ -12,7 +12,7 @@ type GameEvents = {
 }
 
 
-class Game extends EventEmitter<GameEvents> {
+export class Game extends EventEmitter<GameEvents> {
     players: Players = new Map();
     wolves: Players = new Map();
     rounds: Round[] = [];
@@ -103,7 +103,7 @@ class Game extends EventEmitter<GameEvents> {
 }
 
 
-class Round {
+export class Round {
     players: Players = new Map();
     lynched: Player | undefined;
     eliminated: Player | undefined;
@@ -171,9 +171,9 @@ class Voting {
 }
 
 
-type Players = Map<string, Player>;
+export type Players = Map<string, Player>;
 
-class Player {
+export class Player {
     public uuid: string = generateSecureString(5);
     public name: string;
     public is: "villager" | "wolf";
@@ -201,5 +201,3 @@ class Message {
         return this.content;
     }
 }
-
-export { Game, Player, Round, Message };

@@ -1,0 +1,16 @@
+import { Server } from "socket.io";
+import { ClientToServerEvents, ServerSocket, ServerToClientEvents } from "../../types";
+import { Game } from "../engine";
+import Store from "../store";
+
+export default function handler(socket: ServerSocket, io: Server<ClientToServerEvents, ServerToClientEvents>) {
+    socket.on('game-start', () => {
+        Store.assignPlayers();
+        const game = new Game(Store.playerMap);
+        Store.setGame(game);
+        game.messages.map(m => io.emit('broadcast', m.toString()));
+        game.on('message', (message) => {
+            io.emit('broadcast', message.toString());
+        });
+    })
+}
