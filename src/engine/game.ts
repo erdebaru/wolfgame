@@ -1,6 +1,18 @@
-import { generateSecureString, randomlyPick } from "./utils";
+import { EventEmitter } from "node:events";
+import { generateSecureString, randomlyPick } from "../utils";
 
-class Game {
+type GameEvents = {
+    round_start: [],
+    discussion_start: [],
+    lynch_voting_start: [],
+    lynched: [],
+    eliminate_voting_start: [],
+    eliminated: []
+    message: [Message]
+}
+
+
+class Game extends EventEmitter<GameEvents> {
     players: Players = new Map();
     wolves: Players = new Map();
     rounds: Round[] = [];
@@ -9,6 +21,7 @@ class Game {
     phase: "discuss" | "lynch-voting" | "lynch" | "eliminate-voting" | "eliminate" = "discuss";
 
     constructor(players: Players) {
+        super();
         this.players = players;
         for(const [uuid, player] of players.entries()){
             if(player.is === "wolf") this.wolves.set(uuid, player);
@@ -21,6 +34,7 @@ class Game {
         this.current = new Round(this.players);
         this.rounds.push(this.current);
         this.message("Round started, Start discussing");
+        this.emit('round_start');
         return this.current;
     }
 
@@ -28,21 +42,30 @@ class Game {
         switch(this.phase) {
             case "discuss": 
                 this.message("Vote for who to be lynched");
+                this.emit('lynch_voting_start');
                 this.phase = "lynch-voting";
                 break;
             case "lynch-voting":
                 this.message("Voting closed");
+                this.emit('lynch_voting_end');
                 this.phase = "lynch";
+                break;
             case "lynch":
                 this.message(this.current.lynch());
+                this.emit('lynched');
                 this.phase = "eliminate-voting";
-
+                break;
             case "eliminate-voting":
                 this.message("Night has arrived.");
+                this.emit('eliminate_voting_start');
                 this.phase = "eliminate";
+                break;
             case "eliminate":
                 this.message("New dawn arrives.");
                 this.message(`Last night ${this.current.eliminate()}`);
+                this.emit('eliminated');
+                this.current.end();
+                break
                 
         }
     }
@@ -50,6 +73,7 @@ class Game {
     message(content: string, player: Player | null = null) {
         const msg = new Message(content, player);
         this.messages.push(msg);
+        this.emit("message", msg);
         return msg;
     }
 
@@ -114,6 +138,10 @@ class Round {
             }
         }
         return "No one was lynched today.";
+    }
+
+    end(){
+        return "Round ended";
     }
 }
 
