@@ -1,5 +1,5 @@
 import { EventEmitter } from "node:events";
-import { generateSecureString, randomlyPick } from "../utils";
+import { generateSecureString, randomlyPick } from "../../utils";
 
 type GameEvents = {
     round_start: [],
