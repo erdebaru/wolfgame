@@ -15,7 +15,7 @@ io.on("connection", (socket) => {
   console.log("a user connected:", socket.id);
 
   gameHandler(socket, io);
-  playersHandler(socket);
+  playersHandler(socket, io);
   messageHandler(socket);
 
   socket.on("disconnect", () => {
