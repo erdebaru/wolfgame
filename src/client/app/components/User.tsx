@@ -1,14 +1,20 @@
-import { useStore } from "../store"
+import { useStore } from "../store";
 
-interface UserProps {
-    
-}
-
-export default function User({}: UserProps){
-    const context = useStore();
-    return (
-        <>
-    
-        </>
-    )
+export default function User() {
+  const [state, setState] = useStore();
+  return (
+    <>
+      {state.username ? (
+        <p>Playing as {state.username}</p>
+      ) : (
+        <div>
+          <input
+            type="text"
+            placeholder="Enter username"
+            onChange={(e) => setState({ username: e.target.value })}
+          />
+        </div>
+      )}
+    </>
+  );
 }

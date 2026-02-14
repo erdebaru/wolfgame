@@ -4,18 +4,16 @@ import gameHandler from "./handlers/game";
 import playersHandler from "./handlers/players";
 import messageHandler from "./handlers/message";
 
-
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
-    path: '/',
-    cors: {
+  path: "/",
+  cors: {
     origin: "*",
   },
 });
 
-
 io.on("connection", (socket) => {
   console.log("a user connected:", socket.id);
-  
+
   gameHandler(socket, io);
   playersHandler(socket);
   messageHandler(socket);
