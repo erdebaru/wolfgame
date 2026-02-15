@@ -11,10 +11,10 @@ export default function handler(
   socket: ServerSocket,
   io: Server<ClientToServerEvents, ServerToClientEvents>,
 ) {
-  socket.on("new-player", (name: string) => {
+  socket.on("new-player", (name: string, callback) => {
     const newPlayer: Player = new Player(name);
     Store.players.push(newPlayer);
     io.emit("broadcast", `${newPlayer.name} has joined the game!`);
-    return newPlayer.uuid;
+    callback(newPlayer.uuid);
   });
 }

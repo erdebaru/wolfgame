@@ -8,8 +8,12 @@ function App() {
   return (
     <>
       <p>Socket is {isConnected ? "connected" : "disconnected"}</p>
+      <hr />
       <Controls />
+      <hr />
       <User />
+      <hr />
+      <hr />
       <ServerMessages />
     </>
   );

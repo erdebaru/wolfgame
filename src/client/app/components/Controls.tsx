@@ -2,23 +2,17 @@ import { useSocket } from "../socket";
 import { useStore } from "../store";
 
 export default function Controls() {
-  const [state] = useStore();
   const { socket } = useSocket();
   const actions = [
     {
       name: "Start Game",
-      action: () => {},
+      action: () => {
+        socket.emit("game-start");
+      },
     },
     {
       name: "Next Round ",
       action: () => {},
-    },
-    {
-      name: "Add player",
-      action: () => {
-        console.log("Adding player...");
-        const result = socket.emit("new-player", state.username);
-      },
     },
   ];
   return (
