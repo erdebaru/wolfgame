@@ -5,7 +5,8 @@ export default function ServerMessages() {
   const [messages, setMessages] = useState<string[]>([]);
   useSocket({
     broadcast: (message) => {
-      setMessages([...messages, message]);
+      console.log("broadcast", message);
+      setMessages((prev) => [...prev, message]);
     },
   });
   return (

@@ -1,18 +1,16 @@
+import Connection from "./components/Connection";
 import Controls from "./components/Controls";
 import ServerMessages from "./components/ServerMessages";
 import User from "./components/User";
-import { useSocket } from "./socket";
 
 function App() {
-  const { isConnected } = useSocket();
   return (
     <>
-      <p>Socket is {isConnected ? "connected" : "disconnected"}</p>
+      <Connection />
       <hr />
       <Controls />
       <hr />
       <User />
-      <hr />
       <hr />
       <ServerMessages />
     </>
