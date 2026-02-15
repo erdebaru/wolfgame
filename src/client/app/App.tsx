@@ -1,5 +1,6 @@
 import Connection from "./components/Connection";
 import Controls from "./components/Controls";
+import Players from "./components/Players";
 import ServerMessages from "./components/ServerMessages";
 import User from "./components/User";
 
@@ -9,7 +10,10 @@ function App() {
       <Connection />
       <Controls />
       <User />
-      <ServerMessages />
+      <div className="flex-1 flex">
+        <ServerMessages />
+        <Players />
+      </div>
     </div>
   );
 }

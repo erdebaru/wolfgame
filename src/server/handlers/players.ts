@@ -13,8 +13,12 @@ export default function handler(
 ) {
   socket.on("new-player", (name: string, callback) => {
     const newPlayer: Player = new Player(name);
-    Store.players.push(newPlayer);
+    Store.addPlayer(newPlayer);
     io.emit("broadcast", `${newPlayer.name} has joined the game!`);
     callback(newPlayer.uuid);
+  });
+
+  socket.on("get-players", (callback) => {
+    callback(Store.players);
   });
 }

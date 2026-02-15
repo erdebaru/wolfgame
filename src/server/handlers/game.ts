@@ -15,8 +15,7 @@ export default function handler(
     Store.game.messages.map((m) => socket.emit("broadcast", m.toString()));
   }
   socket.on("game-start", () => {
-    Store.assignPlayers();
-    const game = new Game(Store.playerMap);
+    const game = new Game(Game.assignPlayers(Store.players, 2));
     Store.setGame(game);
     game.messages.map((m) => io.emit("broadcast", m.toString()));
     game.on("message", (message) => {
