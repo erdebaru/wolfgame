@@ -5,15 +5,12 @@ import User from "./components/User";
 
 function App() {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Connection />
-      <hr />
       <Controls />
-      <hr />
       <User />
-      <hr />
       <ServerMessages />
-    </>
+    </div>
   );
 }
 

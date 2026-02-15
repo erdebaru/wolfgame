@@ -11,6 +11,9 @@ export default function handler(
   socket: ServerSocket,
   io: Server<ClientToServerEvents, ServerToClientEvents>,
 ) {
+  if (Store.game) {
+    Store.game.messages.map((m) => socket.emit("broadcast", m.toString()));
+  }
   socket.on("game-start", () => {
     Store.assignPlayers();
     const game = new Game(Store.playerMap);

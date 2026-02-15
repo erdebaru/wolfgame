@@ -15,21 +15,26 @@ export default function User() {
     });
   };
   return (
-    <>
+    <div className="bg-slate-800 text-slate-200 p-2 py-4">
       {state.uuid ? (
         <p>
           Playing as {state.username} [{state.uuid}]
         </p>
       ) : (
-        <div>
+        <div className="flex gap-2">
           <input
             type="text"
             placeholder="Enter username"
             onChange={(e) => setUsername(e.target.value)}
           />
-          <button onClick={onSet}>Set Username</button>
+          <button
+            className="bg-slate-700 rounded px-4 cursor-pointer"
+            onClick={onSet}
+          >
+            Set Username
+          </button>
         </div>
       )}
-    </>
+    </div>
   );
 }
