@@ -1,39 +1,29 @@
 import { EventEmitter } from "node:events";
-import { generateSecureString, randomlyPick } from "../../utils";
+import { randomlyPick } from "../../utils";
+import { Players, Player } from "./player";
+import { Message } from "./room";
 
 type GameEvents = {
-  round_start: [];
-  discussion_start: [];
-  lynch_voting_start: [];
-  lynched: [];
-  eliminate_voting_start: [];
-  eliminated: [];
-  message: [Message];
+  new_day: [];
+  discuss: [];
+  lynch_voting: [];
+  lynch: [];
+  eliminate_voting: [];
+  eliminate: [];
 };
 
 export class Game extends EventEmitter<GameEvents> {
   players: Players = new Map();
-  wolves: Players = new Map();
   rounds: Round[] = [];
   current: Round;
   messages: Message[] = [];
-  phase:
-    | "discuss"
-    | "lynch-voting"
-    | "lynch"
-    | "eliminate-voting"
-    | "eliminate" = "discuss";
+  phase: keyof GameEvents = "discuss";
 
   constructor(players: Players) {
     super();
     this.players = players;
-    for (const [uuid, player] of players.entries()) {
-      if (player.is === "wolf") this.wolves.set(uuid, player);
-    }
     this.current = new Round(this.players);
-    this.message(
-      `Game started with ${this.players.size} players, including ${this.wolves.size} wolves.`,
-    );
+    this.message(`Game started with ${this.players.size} players`);
   }
 
   startRound() {
@@ -48,31 +38,32 @@ export class Game extends EventEmitter<GameEvents> {
     switch (this.phase) {
       case "discuss":
         this.message("Vote for who to be lynched");
-        this.emit("lynch_voting_start");
-        this.phase = "lynch-voting";
+        this.phase = "lynch_voting";
         break;
-      case "lynch-voting":
+      case "lynch_voting":
         this.message("Voting closed");
-        this.emit("lynch_voting_end");
         this.phase = "lynch";
         break;
       case "lynch":
         this.message(this.current.lynch());
-        this.emit("lynched");
-        this.phase = "eliminate-voting";
+        this.phase = "eliminate_voting";
         break;
-      case "eliminate-voting":
+      case "eliminate_voting":
         this.message("Night has arrived.");
-        this.emit("eliminate_voting_start");
         this.phase = "eliminate";
         break;
       case "eliminate":
+        this.message("What a horrible night to have a curse");
+        this.current.eliminate();
+        this.phase = "new_day";
+        break;
+      case "new_day":
         this.message("New dawn arrives.");
-        this.message(`Last night ${this.current.eliminate()}`);
-        this.emit("eliminated");
+        this.message(`Last night ${this.current.eliminated}`);
         this.current.end();
         break;
     }
+    this.emit(this.phase);
   }
 
   message(content: string, player: Player | null = null) {
@@ -171,34 +162,5 @@ class Voting {
     if (highestVote === prev || !voteOffUuid)
       return { success: false, result: "There was a draw" };
     return { success: true, result: voteOffUuid };
-  }
-}
-
-export type Players = Map<string, Player>;
-
-export class Player {
-  public uuid: string = generateSecureString(5);
-  public name: string;
-  public is: "villager" | "wolf";
-  public alive: boolean = true;
-
-  constructor(name: string, is: "villager" | "wolf" = "villager") {
-    this.name = name;
-    this.is = is;
-  }
-}
-
-class Message {
-  player: Player | null;
-  content: string;
-
-  constructor(content: string, player: Player | null = null) {
-    this.player = player;
-    this.content = content;
-  }
-
-  toString(): string {
-    if (this.player) return `${this.player.name}: ${this.content}`;
-    return this.content;
   }
 }

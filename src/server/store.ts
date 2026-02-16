@@ -1,9 +1,11 @@
-import { Game, Player, Players } from "./engine";
+import { Game } from "./engine/game";
+import { Player, Players } from "./engine/player";
 
 export default class Store {
   static game?: Game;
   static players: Player[] = [];
   static playerMap: Players = new Map();
+  static messages: string[] = [];
 
   static setGame(newGame: Game) {
     this.game = newGame;

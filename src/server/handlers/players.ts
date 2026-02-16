@@ -1,4 +1,4 @@
-import { Player } from "../engine";
+import { Player } from "../engine/player";
 import {
   ClientToServerEvents,
   ServerSocket,

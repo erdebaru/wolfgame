@@ -4,7 +4,7 @@ import {
   ServerSocket,
   ServerToClientEvents,
 } from "../../types";
-import { Game } from "../engine";
+import { Game } from "../engine/game";
 import Store from "../store";
 
 export default function handler(
