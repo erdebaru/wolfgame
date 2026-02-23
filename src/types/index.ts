@@ -7,6 +7,17 @@ export interface Player {
   alive: boolean;
 }
 
+export interface Info {
+  game_status: "waiting" | "on_going";
+  round:
+    | "new_day"
+    | "discuss"
+    | "lynch_voting"
+    | "lynch"
+    | "eliminate_voting"
+    | "eliminate";
+}
+
 export type Rooms = "lobby" | "game" | "wolf";
 
 export interface ClientToServerEvents {
@@ -19,6 +30,7 @@ export interface ClientToServerEvents {
 export interface ServerToClientEvents {
   broadcast: (message: string | string[]) => void;
   "new-player": () => void;
+  "game-update": (info: Info) => void;
 }
 
 export type ServerSocket = Socket<ClientToServerEvents, ServerToClientEvents>;

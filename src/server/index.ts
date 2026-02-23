@@ -13,40 +13,23 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
   },
 });
 
-try {
-  Store.createLobby();
-  if (Store.lobby) {
-    Store.lobby.on("message", (message) => {
-      io.emit("broadcast", message.toString());
-    });
-  }
-} catch (err) {
-  console.error("Error creating lobby or attaching lobby listener:", err);
+Store.createLobby();
+if (Store.lobby) {
+  Store.lobby.on("message", (message) => {
+    io.emit("broadcast", message.toString());
+  });
 }
 
 io.on("connection", (socket) => {
   console.log("a user connected:", socket.id);
+  gameHandler(socket, io);
+  playersHandler(socket, io);
+  messageHandler(socket, io);
 
-  try {
-    gameHandler(socket, io);
-  } catch (err) {
-    console.error("gameHandler error on connection:", err);
-  }
-  try {
-    playersHandler(socket, io);
-  } catch (err) {
-    console.error("playersHandler error on connection:", err);
-  }
-  try {
-    messageHandler(socket, io);
-  } catch (err) {
-    console.error("messageHandler error on connection:", err);
-  }
-
-  // socket.emit(
-  //   "broadcast",
-  //   RoomManager.getMessages(["game", "lobby"]).map((m) => m.toString()),
-  // );
+  socket.emit(
+    "broadcast",
+    RoomManager.getMessages(["game", "lobby"]).map((m) => m.toString()),
+  );
 
   socket.on("disconnect", () => {
     console.log("user disconnected:", socket.id);

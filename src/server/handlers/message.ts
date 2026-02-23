@@ -4,7 +4,6 @@ import {
   ServerToClientEvents,
 } from "../../types";
 import { Server } from "socket.io";
-import Store from "../store";
 import { RoomManager } from "../engine/room";
 
 export default function handler(
