@@ -1,9 +1,17 @@
-import { ServerSocket } from "../../types";
+import {
+  ClientToServerEvents,
+  ServerSocket,
+  ServerToClientEvents,
+} from "../../types";
+import { Server } from "socket.io";
 import Store from "../store";
+import { RoomManager } from "../engine/room";
 
-export default function handler(socket: ServerSocket) {
-  socket.on("message", (message, uuid) => {
-    const player = Store.playerMap.get(uuid);
-    Store.game?.message(message, player);
+export default function handler(
+  socket: ServerSocket,
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+) {
+  socket.on("message", (message, uuid, room) => {
+    RoomManager.get(room)?.message(message, uuid);
   });
 }

@@ -1,7 +1,6 @@
 import { EventEmitter } from "node:events";
-import { randomlyPick } from "../../utils";
 import { Players, Player } from "./player";
-import { Message } from "./room";
+import { Room, RoomManager } from "./room";
 
 type GameEvents = {
   new_day: [];
@@ -16,20 +15,25 @@ export class Game extends EventEmitter<GameEvents> {
   players: Players = new Map();
   rounds: Round[] = [];
   current: Round;
-  messages: Message[] = [];
+  room: Room;
   phase: keyof GameEvents = "discuss";
 
   constructor(players: Players) {
     super();
     this.players = players;
     this.current = new Round(this.players);
-    this.message(`Game started with ${this.players.size} players`);
+    this.room = RoomManager.createRoom("game", this.players);
+  }
+
+  start() {
+    this.room.message(`Game started with ${this.players.size} players`);
+    this.startRound();
   }
 
   startRound() {
     this.current = new Round(this.players);
     this.rounds.push(this.current);
-    this.message("Round started, Start discussing");
+    this.room.message("Round started, Start discussing");
     this.emit("round_start");
     return this.current;
   }
@@ -37,64 +41,45 @@ export class Game extends EventEmitter<GameEvents> {
   progress() {
     switch (this.phase) {
       case "discuss":
-        this.message("Vote for who to be lynched");
+        this.room.message("Vote for who to be lynched");
         this.phase = "lynch_voting";
         break;
       case "lynch_voting":
-        this.message("Voting closed");
+        this.room.message("Voting closed");
         this.phase = "lynch";
         break;
       case "lynch":
-        this.message(this.current.lynch());
+        this.room.message(this.current.lynch());
         this.phase = "eliminate_voting";
         break;
       case "eliminate_voting":
-        this.message("Night has arrived.");
+        this.room.message("Night has arrived.");
         this.phase = "eliminate";
         break;
       case "eliminate":
-        this.message("What a horrible night to have a curse");
+        this.room.message("What a horrible night to have a curse");
         this.current.eliminate();
         this.phase = "new_day";
         break;
       case "new_day":
-        this.message("New dawn arrives.");
-        this.message(`Last night ${this.current.eliminated}`);
+        this.room.message("New dawn arrives.");
+        this.room.message(`Last night ${this.current.eliminated}`);
         this.current.end();
         break;
     }
     this.emit(this.phase);
   }
 
-  message(content: string, player: Player | null = null) {
-    const msg = new Message(content, player);
-    this.messages.push(msg);
-    this.emit("message", msg);
-    return msg;
-  }
-
   lynchVote(player: Player, target: Player) {
     this.current.lynchVoting.vote(target);
-    this.message(`${player.name} voted for ${target.name} to be lynched.`);
+    this.room.message(`${player.name} voted for ${target.name} to be lynched.`);
   }
 
   eliminateVote(player: Player, target: Player) {
     this.current.eliminateVoting.vote(target);
-    this.message(`${player.name} voted for ${target.name} to be eliminated.`);
-  }
-
-  static assignPlayers(players: Player[], numOfWolves: number): Players {
-    const output: Players = new Map();
-    for (const player of players) {
-      output.set(player.uuid, player);
-    }
-    const entries = Array.from(output.entries());
-    for (let i = 0; i < numOfWolves; i++) {
-      const wolf = entries[randomlyPick(entries.length)];
-      if (!wolf) throw "Failed to pick a wolf";
-      wolf[1].is = "wolf";
-    }
-    return output;
+    this.room.message(
+      `${player.name} voted for ${target.name} to be eliminated.`,
+    );
   }
 }
 

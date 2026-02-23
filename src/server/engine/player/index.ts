@@ -1,15 +1,16 @@
+import { ServerSocket, Player as PlayerInterface } from "../../../types";
 import { generateSecureString } from "../../../utils";
 
 export type Players = Map<string, Player>;
 
-export class Player {
-  public uuid: string = generateSecureString(5);
-  public name: string;
-  public is: "villager" | "wolf";
-  public alive: boolean = true;
+export class Player implements PlayerInterface {
+  uuid: string = generateSecureString(5);
+  name: string;
+  alive: boolean = true;
+  socket: ServerSocket;
 
-  constructor(name: string, is: "villager" | "wolf" = "villager") {
+  constructor(name: string, socket: ServerSocket) {
     this.name = name;
-    this.is = is;
+    this.socket = socket;
   }
 }

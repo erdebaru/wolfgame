@@ -8,14 +8,16 @@ export default function ServerMessages() {
   const [state] = useStore();
   const { socket } = useSocket({
     broadcast: (message) => {
-      setMessages((prev) => [...prev, message]);
+      if (typeof message === "string")
+        setMessages((prev) => [...prev, message]);
+      else setMessages((prev) => [...prev, ...message]);
     },
   });
 
   const onSend: SubmitEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     console.log("sending message", state.uuid);
-    socket.emit("message", message, state.uuid);
+    socket.emit("message", message, state.uuid, "game");
   };
 
   return (

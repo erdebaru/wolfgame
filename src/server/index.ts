@@ -3,6 +3,8 @@ import { ClientToServerEvents, ServerToClientEvents } from "../types";
 import gameHandler from "./handlers/game";
 import playersHandler from "./handlers/players";
 import messageHandler from "./handlers/message";
+import Store from "./store";
+import { RoomManager } from "./engine/room";
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
   path: "/",
@@ -11,12 +13,40 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
   },
 });
 
+try {
+  Store.createLobby();
+  if (Store.lobby) {
+    Store.lobby.on("message", (message) => {
+      io.emit("broadcast", message.toString());
+    });
+  }
+} catch (err) {
+  console.error("Error creating lobby or attaching lobby listener:", err);
+}
+
 io.on("connection", (socket) => {
   console.log("a user connected:", socket.id);
 
-  gameHandler(socket, io);
-  playersHandler(socket, io);
-  messageHandler(socket);
+  try {
+    gameHandler(socket, io);
+  } catch (err) {
+    console.error("gameHandler error on connection:", err);
+  }
+  try {
+    playersHandler(socket, io);
+  } catch (err) {
+    console.error("playersHandler error on connection:", err);
+  }
+  try {
+    messageHandler(socket, io);
+  } catch (err) {
+    console.error("messageHandler error on connection:", err);
+  }
+
+  // socket.emit(
+  //   "broadcast",
+  //   RoomManager.getMessages(["game", "lobby"]).map((m) => m.toString()),
+  // );
 
   socket.on("disconnect", () => {
     console.log("user disconnected:", socket.id);

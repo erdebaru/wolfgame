@@ -1,35 +1,68 @@
+import { EventEmitter } from "node:events";
 import { generateSecureString } from "../../utils";
 import { Player, Players } from "./player";
+import { Rooms } from "../../types";
+
+type RoomEvents = {
+  join: [Player];
+  leave: [];
+  message: [Message];
+};
 
 export class RoomManager {
   static rooms: Map<string, Room> = new Map();
 
   static createRoom(key: string, participants?: Players) {
-    const room = new Room(participants || new Map());
+    const room = new Room(key, participants || new Map());
     this.rooms.set(key, room);
     return room;
   }
 
-  static get(key: string) {
+  static get(key: Rooms) {
     return this.rooms.get(key);
+  }
+
+  static getMessages(keys: Rooms[]) {
+    return [
+      ...keys
+        .flatMap((key) => this.get(key)?.messages || [])
+        .sort((a, b) => a.timestamp - b.timestamp),
+    ];
   }
 }
 
-export class Room {
-  id: string = generateSecureString(5);
+export class Room extends EventEmitter<RoomEvents> {
+  key: string;
   messages: Message[] = [];
   participants: Players;
-
-  constructor(participants: Players) {
+  constructor(key: string, participants: Players) {
+    super();
     this.participants = participants;
+    this.key = key;
   }
 
-  addParticipant(player: Player) {
+  join(player: Player) {
     this.participants.set(player.uuid, player);
+    this.emit("join", player);
   }
 
-  message(message: string, uuid: string) {
-    this.messages.push(new Message(message, this.participants.get(uuid)));
+  leave(player: Player) {
+    this.participants.delete(player.uuid);
+    this.emit("leave");
+  }
+
+  message(message: Message | string, uuid?: string) {
+    let msg: Message;
+    if (message instanceof Message) {
+      msg = message;
+    } else {
+      msg = new Message(
+        message,
+        uuid ? this.participants.get(uuid) : undefined,
+      );
+    }
+    this.messages.push(msg);
+    this.emit("message", msg);
   }
 }
 
@@ -37,10 +70,12 @@ export class Message {
   id: string = generateSecureString(6);
   player: Player | null;
   content: string;
+  timestamp: number;
 
   constructor(content: string, player: Player | null = null) {
     this.player = player;
     this.content = content;
+    this.timestamp = Date.now();
   }
 
   toString(): string {
