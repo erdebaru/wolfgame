@@ -18,6 +18,7 @@ export interface ClientToServerEvents {
 
 export interface ServerToClientEvents {
   broadcast: (message: string | string[]) => void;
+  "new-player": () => void;
 }
 
 export type ServerSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
