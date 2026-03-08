@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { AIMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { ClientSocket, Info } from "../../../types";
+import { ChatMessage, ClientSocket, Info } from "../../../types";
 
 export interface AIClientOptions {
     name: string;
@@ -42,7 +42,7 @@ export abstract class AIClient {
             });
         });
 
-        this.socket.on("broadcast", async (message: string | string[]) => {
+        this.socket.on("broadcast", async (message: ChatMessage | ChatMessage[]) => {
             if (Array.isArray(message)) {
                 for (const msg of message) {
                     await this.handleBroadcast(msg);
@@ -61,7 +61,7 @@ export abstract class AIClient {
      * Called when the socket receives a broadcast.
      * AI clients should process the messages and decide if they want to speak.
      */
-    protected abstract handleBroadcast(message: string): Promise<void>;
+    protected abstract handleBroadcast(message: ChatMessage): Promise<void>;
 
     /**
      * Called when the game state updates (e.g. going into lynch phase)

@@ -16,7 +16,7 @@ export default function handler(
   socket.on("new-player", (name: string, callback) => {
     const newPlayer: Player = new Player(name, socket);
     Store.addPlayer(newPlayer);
-    io.emit("broadcast", `${newPlayer.name} has joined the game!`);
+    Store.lobby.message(`${newPlayer.name} has joined the game!`);
     io.emit("new-player");
     callback(newPlayer.uuid);
   });

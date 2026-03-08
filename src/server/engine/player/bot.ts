@@ -1,20 +1,20 @@
 import { AIClient, AIClientOptions } from "./ai-client";
-import { Info } from "../../../types";
+import { ChatMessage, Info } from "../../../types";
 
 export class AIBot extends AIClient {
   constructor(options: AIClientOptions) {
     super(options);
   }
 
-  protected async handleBroadcast(message: string): Promise<void> {
+  protected async handleBroadcast(message: ChatMessage): Promise<void> {
     // Do not respond to our own messages to avoid self-loop
-    if (message.startsWith(`${this.name}:`)) return;
+    if (message.senderName === this.name) return;
 
-    this.addHumanMessage(`Chat/Event: ${message}`);
+    this.addHumanMessage(`Chat/Event: ${message.content}`);
 
     // If the game is just chatting, the bot has a chance to respond.
     // If the bot's name is mentioned, it always responds.
-    const isMentioned = message.includes(this.name);
+    const isMentioned = message.content.includes(this.name);
     const shouldReply = isMentioned || Math.random() > 0.7;
 
     if (shouldReply) {

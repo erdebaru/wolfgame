@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:events";
 import { generateSecureString } from "../../utils";
 import { Player, Players } from "./player";
-import { Rooms } from "../../types";
+import { ChatMessage, Rooms } from "../../types";
 
 type RoomEvents = {
   join: [Player];
@@ -81,5 +81,17 @@ export class Message {
   toString(): string {
     if (this.player) return `${this.player.name}: ${this.content}`;
     return this.content;
+  }
+
+  toJSON(): ChatMessage {
+    return {
+      id: this.id,
+      content: this.content,
+      ...((this.player) && {
+        senderName: this.player.name,
+        senderId: this.player.uuid,
+      }),
+      timestamp: this.timestamp,
+    };
   }
 }

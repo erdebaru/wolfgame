@@ -1,5 +1,5 @@
 import { AIClient } from "./player/ai-client";
-import { Info } from "../../types";
+import { ChatMessage, Info } from "../../types";
 
 export class AINarrator extends AIClient {
     constructor() {
@@ -9,24 +9,11 @@ export class AINarrator extends AIClient {
         });
     }
 
-    protected async handleBroadcast(message: string): Promise<void> {
-        // The Game Master only responds to system events, not player chatter
-        // System events in default implementation start with capitalized words usually
-        const isSystemEvent = [
-            "Game started",
-            "Round started,",
-            "Vote for who",
-            "Voting closed",
-            "Night has arrived",
-            "What a horrible night",
-            "New dawn",
-            "Last night",
-            "has been lynched",
-            "has been eliminated",
-        ].some(prefix => message.includes(prefix));
-
+    protected async handleBroadcast(message: ChatMessage): Promise<void> {
+        // Evaluate if message is a system event by absence of senderId
+        const isSystemEvent = !message.senderId;
         if (isSystemEvent) {
-            this.addHumanMessage(`System Event: ${message}\n\nProvide flavorful commentary based on this event. Keep it brief and thematic.`);
+            this.addHumanMessage(`System Event: ${message.content}\n\nProvide flavorful commentary based on this event. Keep it brief and thematic.`);
             try {
                 const response = await this.model.invoke(this.messages);
                 if (response.content) {
@@ -34,7 +21,7 @@ export class AINarrator extends AIClient {
                     // Store the system event itself in memory without the prompt hook for cleaner history
                     this.messages.pop(); // remove AI msg
                     this.messages.pop(); // remove prompt
-                    this.messages.push(this.addHumanMessage(`System Event: ${message}`)); // add clean msg
+                    this.messages.push(this.addHumanMessage(`System Event: ${message.content}`)); // add clean msg
 
                     this.sendMessage(reply, "game");
                 }
@@ -43,8 +30,8 @@ export class AINarrator extends AIClient {
             }
         } else {
             // Just quietly observe the chat to know context
-            if (!message.startsWith("Game Master:")) {
-                this.addHumanMessage(`Chat: ${message}`);
+            if (message.senderName !== "Game Master") {
+                this.addHumanMessage(`Chat from ${message.senderName}: ${message.content}`);
             }
         }
     }

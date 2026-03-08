@@ -19,7 +19,7 @@ export default function handler(
     Store.setGame(game);
     game.room.on("message", (m) => {
       for (const player of game.players.values()) {
-        player.socket.emit("broadcast", m.toString());
+        player.socket.emit("broadcast", m.toJSON());
       }
     });
 

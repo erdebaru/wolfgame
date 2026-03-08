@@ -17,7 +17,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
 Store.createLobby();
 if (Store.lobby) {
   Store.lobby.on("message", (message) => {
-    io.emit("broadcast", message.toString());
+    io.emit("broadcast", message.toJSON());
   });
 }
 
@@ -29,7 +29,7 @@ io.on("connection", (socket) => {
 
   socket.emit(
     "broadcast",
-    RoomManager.getMessages(["game", "lobby"]).map((m) => m.toString()),
+    RoomManager.getMessages(["game", "lobby"]).map((m) => m.toJSON()),
   );
 
   socket.on("disconnect", () => {

@@ -28,8 +28,16 @@ export interface ClientToServerEvents {
   "add-bot": () => void;
 }
 
+export interface ChatMessage {
+  id: string;
+  content: string;
+  senderName?: string;
+  senderId?: string;
+  timestamp: number;
+}
+
 export interface ServerToClientEvents {
-  broadcast: (message: string | string[]) => void;
+  broadcast: (message: ChatMessage | ChatMessage[]) => void;
   "new-player": () => void;
   "game-update": (info: Info) => void;
 }
