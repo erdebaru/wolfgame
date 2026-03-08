@@ -6,6 +6,8 @@ import {
 } from "../../types";
 import Store from "../store";
 import { Server } from "socket.io";
+import { AIBot } from "../engine/player/bot";
+import personas from "../engine/player/personas";
 
 export default function handler(
   socket: ServerSocket,
@@ -28,5 +30,14 @@ export default function handler(
       alive: p.alive,
     }));
     callback(plainPlayers);
+  });
+
+  socket.on("add-bot", () => {
+    const persona = personas[Math.floor(Math.random() * personas.length)];
+    if (!persona) return;
+    new AIBot({
+      name: `${persona.name} (Bot)`,
+      systemPrompt: `You are playing Werewolf. Your persona is: ${persona.personality}. Keep chat to 1-2 short sentences. Do not use asterisks or markdown, just talk.`,
+    });
   });
 }

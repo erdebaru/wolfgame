@@ -6,6 +6,9 @@ import {
 } from "../../types";
 import { Game } from "../engine/game";
 import Store from "../store";
+import { AINarrator } from "../engine/narrator";
+
+let narratorAssigned = false;
 
 export default function handler(
   socket: ServerSocket,
@@ -16,17 +19,19 @@ export default function handler(
     Store.setGame(game);
     game.room.on("message", (m) => {
       for (const player of game.players.values()) {
-        try {
-          player.socket.emit("broadcast", m.toString());
-        } catch (err) {
-          console.error(
-            "Error emitting game message to player",
-            player.uuid,
-            err,
-          );
-        }
+        player.socket.emit("broadcast", m.toString());
       }
     });
+
+    if (!narratorAssigned) {
+      new AINarrator();
+      narratorAssigned = true;
+    }
+
     game.start();
+    socket.emit("game-update", {
+      game_status: "on_going",
+      round: "discuss",
+    });
   });
 }

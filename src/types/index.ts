@@ -10,12 +10,12 @@ export interface Player {
 export interface Info {
   game_status: "waiting" | "on_going";
   round:
-    | "new_day"
-    | "discuss"
-    | "lynch_voting"
-    | "lynch"
-    | "eliminate_voting"
-    | "eliminate";
+  | "new_day"
+  | "discuss"
+  | "lynch_voting"
+  | "lynch"
+  | "eliminate_voting"
+  | "eliminate";
 }
 
 export type Rooms = "lobby" | "game" | "wolf";
@@ -25,6 +25,7 @@ export interface ClientToServerEvents {
   message: (message: string, uuid: string, room: Rooms) => void;
   "game-start": () => void;
   "get-players": (callback: (players: Player[]) => void) => void;
+  "add-bot": () => void;
 }
 
 export interface ServerToClientEvents {

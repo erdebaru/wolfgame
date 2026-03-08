@@ -11,8 +11,14 @@ export default function Controls() {
       },
     },
     {
-      name: "Next Round ",
-      action: () => {},
+      name: "Next Round",
+      action: () => { },
+    },
+    {
+      name: "Add Bot",
+      action: () => {
+        socket.emit("add-bot");
+      },
     },
   ];
   return (

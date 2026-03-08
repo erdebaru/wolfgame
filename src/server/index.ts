@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents } from "../types";
 import gameHandler from "./handlers/game";
@@ -7,7 +8,7 @@ import Store from "./store";
 import { RoomManager } from "./engine/room";
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
-  path: "/",
+  path: "/ws",
   cors: {
     origin: "*",
   },
