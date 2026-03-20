@@ -4,7 +4,7 @@ import { ClientToServerEvents, ServerToClientEvents } from "../types";
 import gameHandler from "./handlers/game";
 import playersHandler from "./handlers/players";
 import messageHandler from "./handlers/message";
-import Store from "./store";
+import { store } from "./store";
 import { RoomManager } from "./engine/room";
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
@@ -14,9 +14,9 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(3000, {
   },
 });
 
-Store.createLobby();
-if (Store.lobby) {
-  Store.lobby.on("message", (message) => {
+store.createLobby();
+if (store.lobby) {
+  store.lobby.on("message", (message: any) => {
     io.emit("broadcast", message.toJSON());
   });
 }

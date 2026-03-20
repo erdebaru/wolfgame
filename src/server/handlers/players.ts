@@ -4,7 +4,7 @@ import {
   ServerSocket,
   ServerToClientEvents,
 } from "../../types";
-import Store from "../store";
+import { store } from "../store";
 import { Server } from "socket.io";
 import { AIBot } from "../engine/player/bot";
 import personas from "../engine/player/personas";
@@ -15,8 +15,8 @@ export default function handler(
 ) {
   socket.on("new-player", (name: string, callback) => {
     const newPlayer: Player = new Player(name, socket);
-    Store.addPlayer(newPlayer);
-    Store.lobby.message(`${newPlayer.name} has joined the game!`);
+    store.addPlayer(newPlayer);
+    store.lobby.message(`${newPlayer.name} has joined the game!`);
     io.emit("new-player");
     callback(newPlayer.uuid);
   });
@@ -24,7 +24,7 @@ export default function handler(
   socket.on("get-players", (callback) => {
     // Return a plain, serializable version of players to avoid circular
     // references (Player contains a socket which can't be serialized).
-    const plainPlayers = [...Store.players.values()].map((p) => ({
+    const plainPlayers = store.getAllPlayers().map((p) => ({
       uuid: p.uuid,
       name: p.name,
       alive: p.alive,

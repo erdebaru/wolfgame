@@ -5,7 +5,7 @@ import {
   ServerToClientEvents,
 } from "../../types";
 import { Game } from "../engine/game";
-import Store from "../store";
+import { store } from "../store";
 import { AINarrator } from "../engine/narrator";
 
 let narratorAssigned = false;
@@ -15,8 +15,8 @@ export default function handler(
   io: Server<ClientToServerEvents, ServerToClientEvents>,
 ) {
   socket.on("game-start", () => {
-    const game = new Game(Store.players);
-    Store.setGame(game);
+    const game = new Game(store.players);
+    store.setGame(game);
     game.room.on("message", (m) => {
       for (const player of game.players.values()) {
         player.socket.emit("broadcast", m.toJSON());
